@@ -4,9 +4,7 @@ import { useForm } from "react-hook-form";
 import { API } from "../../utils/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
-
-
-
+import Loader from "../elements/Loader";
 
 const customStyles = {
   content: {
@@ -23,18 +21,18 @@ const customStyles = {
 };
 
 const Login = (props) => {
-  const [loader, setLoader] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [error, setError] = useState({
     error: false,
     message: "",
   });
-  const { register, handleSubmit,  } = useForm();
+  const { register, handleSubmit } = useForm();
 
   //handle submit login
   const onSubmit = async (data) => {
-
-    clearError()
+    setIsLoading(true);
+    clearError();
     const payload = {
       email: data.email,
       password: data.password,
@@ -46,13 +44,13 @@ const Login = (props) => {
           error: true,
           message: errorMessage,
         });
+        setIsLoading(false);
       }
     });
     if (res?.status === 200) {
-
-      props.setIsLogin(!props.isLogin)
-      localStorage.setItem('token', res.data.data.token);
-    
+      props.setIsLogin(!props.isLogin);
+      localStorage.setItem("token", res.data.data.token);
+      setIsLoading(false);
       toggle();
     }
   };
@@ -68,18 +66,14 @@ const Login = (props) => {
     });
   };
 
-
-
   return (
     <div>
-
       <Modal
         isOpen={props.modal}
         style={customStyles}
         contentLabel="Modal Login"
         ariaHideApp={false}
       >
-
         <div className="" style={{ minWidth: 400 }}>
           <div className="block">
             <FontAwesomeIcon
@@ -98,10 +92,10 @@ const Login = (props) => {
                 type="text"
                 placeholder="Email"
                 name="email"
-                onChange={() =>clearError()}
+                onChange={() => clearError()}
                 className="w-full border-gray-light border my-2 p-2 pl-4 rounded-3xl focus:outline-none shadow appearance-none "
                 {...register("email", { required: true })}
-            //    {...register({ required: true, pattern: /^\S+@\S+$/i })}
+                //    {...register({ required: true, pattern: /^\S+@\S+$/i })}
               />
               <input
                 type="password"
@@ -109,16 +103,22 @@ const Login = (props) => {
                 onChange={() => clearError()}
                 name="password"
                 {...register("password", { required: true })}
-            //    {...register({ required: true, min: 8 })}
+                //    {...register({ required: true, min: 8 })}
                 className="w-full border-gray-light border my-2 p-2 pl-4 rounded-3xl focus:outline-none shadow appearance-none "
               />
               {error.error && (
                 <p className="text-red text-center">{error.message}</p>
               )}
-              <input
-                type="submit"
-                className="w-full my-2 p-2 rounded-3xl bg-light-blue hover: hover:bg-blue-primary cursor-pointer focus:outline-none shadow appearance-none "
-              />
+              {isLoading ? (
+                <div className="h-5 w-full bg-gray-400 rounded-full mr-1 animate-bounce text-center d-flex justify-center align-middle ">
+                  Loading
+                </div>
+              ) : (
+                <input
+                  type="submit"
+                  className="w-full my-2 p-2 rounded-3xl bg-light-blue hover: hover:bg-blue-primary cursor-pointer focus:outline-none shadow appearance-none "
+                />
+              )}
             </div>
           </form>
         </div>
